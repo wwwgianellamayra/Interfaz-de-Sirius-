@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIRIUS | Estación Terrena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+</head>
+<body>
+  <div class="stars"></div>
+
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">COMPETENCIA NACIONAL DE PEQUEÑOS SATÉLITES</p>
+      <h1>SIRIUS · ESTACIÓN TERRENA</h1>
+    </div>
+    <div class="connection-pill">
+      <span class="pulse"></span>
+      <span id="connectionText">Conectado</span>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <section class="hero-card">
+      <div>
+        <p class="label">ESTADO DE MISIÓN</p>
+        <h2 id="missionState">PRE_LAUNCH</h2>
+        <p id="missionMessage">Esperando inicio de misión</p>
+      </div>
+      <div class="mission-timer">
+        <span>TIEMPO</span>
+        <strong id="missionTime">00:00</strong>
+      </div>
+    </section>
+
+    <section class="metrics-grid">
+      <article class="metric-card">
+        <span>Altitud</span>
+        <strong id="altitude">0.0 m</strong>
+        <small>BMP280</small>
+      </article>
+      <article class="metric-card">
+        <span>Velocidad vertical</span>
+        <strong id="velocity">0.0 m/s</strong>
+        <small>Estimación</small>
+      </article>
+      <article class="metric-card">
+        <span>Batería</span>
+        <strong id="voltage">0.00 V</strong>
+        <small id="batteryStatus">Normal</small>
+      </article>
+      <article class="metric-card">
+        <span>Temperatura</span>
+        <strong id="temperature">0.0 °C</strong>
+        <small>Interna</small>
+      </article>
+      <article class="metric-card">
+        <span>Paquete</span>
+        <strong id="packetId">0</strong>
+        <small>LoRa 433 MHz</small>
+      </article>
+      <article class="metric-card">
+        <span>Presión</span>
+        <strong id="pressure">0 hPa</strong>
+        <small>Atmosférica</small>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel chart-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="label">TELEMETRÍA</p>
+            <h3>Altitud y velocidad</h3>
+          </div>
+          <span class="chip">Tiempo real</span>
+        </div>
+        <canvas id="flightChart"></canvas>
+      </article>
+
+      <article class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="label">POSICIÓN</p>
+            <h3>Geolocalización</h3>
+          </div>
+          <span class="chip">GPS</span>
+        </div>
+        <div class="coordinates">
+          <div><span>Latitud</span><strong id="latitude">--</strong></div>
+          <div><span>Longitud</span><strong id="longitude">--</strong></div>
+        </div>  
+        <div class="map-toolbar">
+          <button id="centerMapButton" type="button">
+            Centrar CubeSat
+          </button>
+
+          <button id="clearRouteButton" type="button">
+            Limpiar trayectoria
+          </button>
+        </div>
+
+        <div id="missionMap"></div>
+
+        <div class="map-information">
+          <span>
+            Puntos registrados:
+            <strong id="routePointCount">0</strong>
+          </span>
+
+          <span>
+            Distancia aproximada:
+            <strong id="routeDistance">0 m</strong>
+          </span>
+        </div>
+      </article> 
+
+      <article class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="label">ORIENTACIÓN</p>
+            <h3>IMU MPU6050</h3>
+          </div>
+        </div>
+        <div class="orientation-grid">
+          <div><span>Pitch</span><strong id="pitch">0°</strong></div>
+          <div><span>Roll</span><strong id="roll">0°</strong></div>
+          <div><span>Yaw</span><strong id="yaw">0°</strong></div>
+        </div>
+      </article>
+
+      <article class="panel classification-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="label">PAYLOAD</p>
+            <h3>Clasificación del terreno</h3>
+          </div>
+          <span class="chip" id="terrainClass">Verde</span>
+        </div>
+        <div class="classification-bars">
+          <div>
+            <div class="bar-label"><span>Área verde</span><strong id="greenText">0%</strong></div>
+            <div class="bar"><i id="greenBar"></i></div>
+          </div>
+          <div>
+            <div class="bar-label"><span>Área urbana</span><strong id="urbanText">0%</strong></div>
+            <div class="bar"><i id="urbanBar"></i></div>
+          </div>
+          <div>
+            <div class="bar-label"><span>Área mixta</span><strong id="mixedText">0%</strong></div>
+            <div class="bar"><i id="mixedBar"></i></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel log-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="label">SISTEMA</p>
+            <h3>Registro de eventos</h3>
+          </div>
+        </div>
+        <ul id="eventLog"></ul>
+      </article>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
