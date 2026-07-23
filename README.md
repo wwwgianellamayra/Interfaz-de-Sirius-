@@ -1,6 +1,6 @@
 # Interfaz-de-Sirius-
 Interfaz para la Competencia Nacional de Pequeños Satélites
-
+```
 sirius-ground-station/
 │
 ├── frontend/
@@ -26,6 +26,12 @@ sirius-ground-station/
 │   └── sirius.db
 │
 ├── notebooks/
+│   └── analisis_post_mision.ipynb
+│
+├── README.md
+└── .gitignore
+```
+
 │   └── analisis_post_mision.ipynb
 │
 ├── README.md
