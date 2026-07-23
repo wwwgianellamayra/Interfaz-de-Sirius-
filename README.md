@@ -32,7 +32,3 @@ sirius-ground-station/
 └── .gitignore
 ```
 
-│   └── analisis_post_mision.ipynb
-│
-├── README.md
-└── .gitignore
