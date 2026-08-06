@@ -1,7 +1,28 @@
-__pycache__/
-*.pyc
+# Entornos virtuales
 .venv/
 venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Modelo pesado
+models/*.pth
+models/*.pt
+models/*.ckpt
+
+# Archivos generados
+static/uploads/
+static/results/
+uploads/
+results/
 data/*.db
-.vscode/
+
+# Variables locales
+.env
+
+# Sistema y editor
 .DS_Store
+Thumbs.db
+.vscode/

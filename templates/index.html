@@ -1,177 +1,70 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SIRIUS | Estación Terrena</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 </head>
 <body>
-  <div class="stars"></div>
+  <main class="shell">
+    <header class="topbar card">
+      <div class="brand"><span class="brand-icon">✦</span><div><h1>SIRIUS</h1><p>ESTACIÓN TERRENA · CNPS 2026</p></div></div>
+      <div class="top-stat online"><span class="dot"></span><strong>CONECTADO</strong><small>LoRa 433 MHz</small></div>
+      <div class="top-stat"><small>TIEMPO DE MISIÓN</small><strong id="missionTime">00:00:00</strong></div>
+      <div class="top-stat"><small>PAQUETE ACTUAL</small><strong id="packetId">#000000</strong></div>
+      <div class="top-stat"><small>ÚLTIMA ACTUALIZACIÓN</small><strong id="lastUpdate">--:--:--</strong></div>
+    </header>
 
-  <header class="topbar">
-    <div>
-      <p class="eyebrow">COMPETENCIA NACIONAL DE PEQUEÑOS SATÉLITES</p>
-      <h1>SIRIUS · ESTACIÓN TERRENA</h1>
-    </div>
-    <div class="connection-pill">
-      <span class="pulse"></span>
-      <span id="connectionText">Conectado</span>
-    </div>
-  </header>
-
-  <main class="dashboard">
-    <section class="hero-card">
-      <div>
-        <p class="label">ESTADO DE MISIÓN</p>
-        <h2 id="missionState">PRE_LAUNCH</h2>
-        <p id="missionMessage">Esperando inicio de misión</p>
-      </div>
-      <div class="mission-timer">
-        <span>TIEMPO</span>
-        <strong id="missionTime">00:00</strong>
-      </div>
+    <section class="metrics card">
+      <div><small>ALTITUD</small><strong id="altitude">0.0 m</strong><span>BMP280</span></div>
+      <div><small>VEL. VERTICAL</small><strong id="velocity">0.0 m/s</strong><span>Estimación</span></div>
+      <div><small>BATERÍA</small><strong id="voltage">0.00 V</strong><span class="ok">Normal</span></div>
+      <div><small>TEMPERATURA</small><strong id="temperature">0.0 °C</strong><span>Interna</span></div>
+      <div><small>PRESIÓN</small><strong id="pressure">0.0 hPa</strong><span>Atmosférica</span></div>
+      <div><small>SEÑAL LoRa</small><strong id="rssi">-- dBm</strong><span class="ok">Enlace activo</span></div>
     </section>
 
-    <section class="metrics-grid">
-      <article class="metric-card">
-        <span>Altitud</span>
-        <strong id="altitude">0.0 m</strong>
-        <small>BMP280</small>
-      </article>
-      <article class="metric-card">
-        <span>Velocidad vertical</span>
-        <strong id="velocity">0.0 m/s</strong>
-        <small>Estimación</small>
-      </article>
-      <article class="metric-card">
-        <span>Batería</span>
-        <strong id="voltage">0.00 V</strong>
-        <small id="batteryStatus">Normal</small>
-      </article>
-      <article class="metric-card">
-        <span>Temperatura</span>
-        <strong id="temperature">0.0 °C</strong>
-        <small>Interna</small>
-      </article>
-      <article class="metric-card">
-        <span>Paquete</span>
-        <strong id="packetId">0</strong>
-        <small>LoRa 433 MHz</small>
-      </article>
-      <article class="metric-card">
-        <span>Presión</span>
-        <strong id="pressure">0 hPa</strong>
-        <small>Atmosférica</small>
-      </article>
-    </section>
+    <section class="dashboard-grid">
+      <div class="left-column">
+        <article class="card mission-card"><p class="kicker">ESTADO DE MISIÓN</p><h2 id="missionState">PRE_LAUNCH</h2><p id="missionMessage">VERIFICACIÓN DE SISTEMAS</p><div class="steps"><span>PRE_LAUNCH</span><span>ASCENT</span><span>DESCENT_FREE</span><span>DESCENT_STABLE</span><span>LANDING</span><span>LANDED</span></div></article>
+        <article class="card gps-card"><div class="section-title">GPS Y NAVEGACIÓN</div><div class="gps-status"><span class="dot"></span><b>FIJACIÓN GPS ACTIVA</b><span id="satellites">8 satélites</span></div><div class="gps-grid"><div><small>LATITUD</small><strong id="latitude">--</strong></div><div><small>LONGITUD</small><strong id="longitude">--</strong></div><div><small>ALTITUD GPS</small><strong id="gpsAltitude">-- m</strong></div><div><small>PRECISIÓN</small><strong id="gpsAccuracy">-- m</strong></div></div><div class="gps-last"><small>Última posición válida</small><b id="gpsTime">--:--:--</b></div></article>
+        <article class="card chart-card"><div class="section-title">TELEMETRÍA EN TIEMPO REAL</div><canvas id="telemetryChart" width="600" height="260"></canvas></article>
+        <article class="card orientation"><div class="section-title">ORIENTACIÓN (MPU6050)</div><div class="orientation-grid"><div><small>PITCH</small><strong id="pitch">0.0°</strong></div><div><small>ROLL</small><strong id="roll">0.0°</strong></div><div><small>YAW</small><strong id="yaw">0.0°</strong></div></div></article>
+      </div>
 
-    <section class="content-grid">
-      <article class="panel chart-panel">
-        <div class="panel-heading">
-          <div>
-            <p class="label">TELEMETRÍA</p>
-            <h3>Altitud y velocidad</h3>
+      <div class="center-column">
+        <article class="card image-analysis-card">
+          <div class="image-header">
+            <div><div class="section-title">IMAGEN CAPTURADA Y SEGMENTACIÓN</div><div class="image-subtitle">Inferencia local con FLAIR</div></div>
+            <div class="image-actions"><span id="captureBadge">SIN CAPTURAS</span><button id="toggleMaskButton" type="button" disabled>Ver original</button></div>
           </div>
-          <span class="chip">Tiempo real</span>
-        </div>
-        <canvas id="flightChart"></canvas>
-      </article>
-
-      <article class="panel">
-        <div class="panel-heading">
-          <div>
-            <p class="label">POSICIÓN</p>
-            <h3>Geolocalización</h3>
+          <form id="analyzeForm" class="analyze-form">
+            <label class="file-picker"><input id="imageInput" name="image" type="file" accept="image/jpeg,image/png" required><span>Seleccionar imagen</span><b id="selectedFileName">Ningún archivo seleccionado</b></label>
+            <button id="analyzeButton" type="submit">Analizar con FLAIR</button>
+            <span id="modelStatus" class="model-status">Comprobando modelo...</span>
+          </form>
+          <div class="image-stage" id="imageStage">
+            <img id="captureImage" src="{{ url_for('static', filename='images/sample-terrain.png') }}" alt="Captura aérea del CubeSat">
+            <div class="segmentation-legend"><span><i class="green-swatch"></i>Área verde</span><span><i class="urban-swatch"></i>Área urbana</span></div>
+            <div id="analysisMessage" class="prototype-warning neutral-warning">Selecciona una imagen para ejecutar el modelo real</div>
           </div>
-          <span class="chip">GPS</span>
-        </div>
-        <div class="coordinates">
-          <div><span>Latitud</span><strong id="latitude">--</strong></div>
-          <div><span>Longitud</span><strong id="longitude">--</strong></div>
-        </div>  
-        <div class="map-toolbar">
-          <button id="centerMapButton" type="button">
-            Centrar CubeSat
-          </button>
+          <div class="capture-meta"><span><small>COORDENADAS</small><b id="captureCoords">--, --</b></span><span><small>HORA</small><b id="captureTime">--:--:--</b></span><span><small>ALTITUD</small><b id="captureAltitude">-- m</b></span><span><small>PROCESAMIENTO</small><b id="processingType">FLAIR local</b></span></div>
+        </article>
 
-          <button id="clearRouteButton" type="button">
-            Limpiar trayectoria
-          </button>
+        <div class="analysis-bottom-grid">
+          <article class="card classification-card"><div class="classification-head"><div class="section-title">PORCENTAJES DE COBERTURA</div><strong>MODELO REAL</strong></div><div class="bar-row"><span>Área verde</span><div><i id="greenBar"></i></div><b id="greenValue">0%</b></div><div class="bar-row"><span>Área urbana</span><div><i id="urbanBar"></i></div><b id="urbanValue">0%</b></div><footer><span>FLAIR DeepLabV3 + ResNet34</span><span id="otherValue">Otros: 0%</span></footer></article>
+          <article class="card systems"><div class="section-title">ESTADO DE SISTEMAS</div><div class="system-grid"><div>OBC<br><b>OK</b></div><div>COM<br><b>OK</b></div><div>GPS<br><b>OK</b></div><div>SENSORES<br><b>OK</b></div><div>PAYLOAD<br><b id="payloadStatus">ESPERA</b></div><div>EPS<br><b>OK</b></div></div></article>
         </div>
+      </div>
 
-        <div id="missionMap"></div>
-
-        <div class="map-information">
-          <span>
-            Puntos registrados:
-            <strong id="routePointCount">0</strong>
-          </span>
-
-          <span>
-            Distancia aproximada:
-            <strong id="routeDistance">0 m</strong>
-          </span>
-        </div>
-      </article> 
-
-      <article class="panel">
-        <div class="panel-heading">
-          <div>
-            <p class="label">ORIENTACIÓN</p>
-            <h3>IMU MPU6050</h3>
-          </div>
-        </div>
-        <div class="orientation-grid">
-          <div><span>Pitch</span><strong id="pitch">0°</strong></div>
-          <div><span>Roll</span><strong id="roll">0°</strong></div>
-          <div><span>Yaw</span><strong id="yaw">0°</strong></div>
-        </div>
-      </article>
-
-      <article class="panel classification-panel">
-        <div class="panel-heading">
-          <div>
-            <p class="label">PAYLOAD</p>
-            <h3>Clasificación del terreno</h3>
-          </div>
-          <span class="chip" id="terrainClass">Verde</span>
-        </div>
-        <div class="classification-bars">
-          <div>
-            <div class="bar-label"><span>Área verde</span><strong id="greenText">0%</strong></div>
-            <div class="bar"><i id="greenBar"></i></div>
-          </div>
-          <div>
-            <div class="bar-label"><span>Área urbana</span><strong id="urbanText">0%</strong></div>
-            <div class="bar"><i id="urbanBar"></i></div>
-          </div>
-          <div>
-            <div class="bar-label"><span>Área mixta</span><strong id="mixedText">0%</strong></div>
-            <div class="bar"><i id="mixedBar"></i></div>
-          </div>
-        </div>
-      </article>
-
-      <article class="panel log-panel">
-        <div class="panel-heading">
-          <div>
-            <p class="label">SISTEMA</p>
-            <h3>Registro de eventos</h3>
-          </div>
-        </div>
-        <ul id="eventLog"></ul>
-      </article>
+      <div class="right-column">
+        <article class="card captures-list-card"><div class="capture-head"><div class="section-title">CAPTURAS PROCESADAS</div><span>Selecciona una imagen</span></div><div id="capturesList"><p class="empty-state">Todavía no hay capturas procesadas.</p></div></article>
+        <article class="card summary-card"><div class="summary-heading"><div class="section-title">RESUMEN DE COBERTURA</div><button id="resetCapturesButton" class="reset-button" type="button">↻ Reiniciar datos</button></div><div class="coverage-summary"><span><small>PROMEDIO ÁREA VERDE</small><strong id="averageGreen">0%</strong></span><span><small>PROMEDIO ÁREA URBANA</small><strong id="averageUrban">0%</strong></span></div><div class="summary-stats"><span>Imágenes recibidas <b id="receivedCount">0</b></span><span>Procesadas <b id="classifiedCount">0</b></span></div></article>
+        <article class="card log-card"><div class="section-title">REGISTRO DE EVENTOS</div><ul id="eventLog"></ul></article>
+      </div>
     </section>
   </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
   <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
 </html>
