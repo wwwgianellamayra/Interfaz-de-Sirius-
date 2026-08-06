@@ -50,7 +50,7 @@ http://127.0.0.1:5000
 Si deseas mantener los pesos en `SIRIUS_ML/models`, ejecuta:
 
 ```powershell
-$env:SIRIUS_MODEL_PATH="C:\Users\Nela\Downloads\SIRIUS_ML\models\FLAIR-INC_rgb_15cl_resnet34-deeplabv3_weights.pth"
+$env:SIRIUS_MODEL_PATH="C:\Users\TuUsuario\Downloads\SIRIUS_ML\models\FLAIR-INC_rgb_15cl_resnet34-deeplabv3_weights.pth"
 ..\FLAIR-1\.venv\Scripts\python.exe app.py
 ```
 
