@@ -34,7 +34,7 @@ Otra opción es definir la variable `SIRIUS_MODEL_PATH` con la ruta absoluta del
 Desde PowerShell:
 
 ```powershell
-cd C:\Users\Nela\Downloads\SIRIUS_ML\sirius_dashboard_ml_integrado
+cd C:\Users\TuUSUARIO\Downloads\SIRIUS_ML\sirius_dashboard_ml_integrado
 ..\FLAIR-1\.venv\Scripts\python.exe -m pip install Flask==3.1.1
 ..\FLAIR-1\.venv\Scripts\python.exe app.py
 ```
